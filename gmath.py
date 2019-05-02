@@ -22,25 +22,34 @@ SPECULAR_EXP = 4
 
 #lighting functions
 def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect ):
+    normalize(light[0])
+    normalize(normal)
     Iamb = calculate_ambient(light,areflect)
     Idif = calculate_diffuse(light,dreflect,normal)
     Ispec = calculate_specular(light,sreflect,view,normal)
-    return limit_color(Iamb + Idif + Ispec)
+    Isum = [ Iamb[i] + Idif[i] + Ispec[i] for i in range(0,3) ]
+    Isum = limit_color(Isum)
+    print(Isum)
+    return Isum
 
-def calculate_ambient(alight, areflect):
-    return areflect * alight
+def calculate_ambient(light, areflect):
+    return [areflect[i] * light[1][i] for i in range(0,3) ]
 
 def calculate_diffuse(light, dreflect, normal):
-    return light * dreflect * dot_product(normal,light)
+    return [light[0][i] * dreflect[i] * dot_product(normal,light[1]) for i in range(0,3)]
 
 def calculate_specular(light, sreflect, view, normal):
-    return light * sreflect * dot_product(2*normal*(normal-light) - light,view)
+    dot = dot_product( [2*normal[k]*(normal[k]-light[1][k]) - light[1][k] for k in range(0,3) ] , view)
+    return [light[0][i] * sreflect[i] * dot for i in range(0,3)]
 
 def limit_color(color):
-    if color > 255:
-        color == 255
-    if color < 0:
-        color = 0
+    k = 0
+    while k < 3:
+        if color[k] > 255:
+            color[k] = 255
+        if color[k] < 0:
+            color[k] = 0
+        k += 1
     return color
 
 #vector functions
