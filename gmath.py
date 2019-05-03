@@ -19,16 +19,33 @@ SPECULAR = 2
 LOCATION = 0
 COLOR = 1
 SPECULAR_EXP = 4
-
+#light[0] gives L hat
+#light[1] gives Ip
 #lighting functions
 def get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect ):
     normalize(light[0])
+    print("new light")
+    print(light)
     normalize(normal)
+    print("new normal:")
+    print(normal)
     Iamb = calculate_ambient(light,areflect)
     Idif = calculate_diffuse(light,dreflect,normal)
     Ispec = calculate_specular(light,sreflect,view,normal)
+    
+    #Iamb = limit_color(Iamb)
+    #Idif = limit_color(Idif)
+    #Ispec = limit_color(Ispec)
+    print("Iamb:")
+    print(Iamb)
+    print("Idif:")
+    print(Idif)
+    print("Ispec:")
+    print(Ispec)
+  
     Isum = [ Iamb[i] + Idif[i] + Ispec[i] for i in range(0,3) ]
     Isum = limit_color(Isum)
+    print("Isum:")
     print(Isum)
     return Isum
 
@@ -36,11 +53,17 @@ def calculate_ambient(light, areflect):
     return [areflect[i] * light[1][i] for i in range(0,3) ]
 
 def calculate_diffuse(light, dreflect, normal):
-    return [light[0][i] * dreflect[i] * dot_product(normal,light[1]) for i in range(0,3)]
+    dot = dot_product(normal,light[0])
+    return [light[1][i] * dreflect[i] * dot for i in range(0,3)]
 
 def calculate_specular(light, sreflect, view, normal):
-    dot = dot_product( [2*normal[k]*(normal[k]-light[1][k]) - light[1][k] for k in range(0,3) ] , view)
-    return [light[0][i] * sreflect[i] * dot for i in range(0,3)]
+    pastdot = dot_product(normal,light[0])
+    reflection = [2*normal[k]*(pastdot) - light[0][k] for k in range(0,3) ]
+    normalize(reflection)
+    dot = dot_product(reflection,view)
+    print("dot")
+    print(dot)
+    return [light[1][i] * sreflect[i] * dot for i in range(0,3)]
 
 def limit_color(color):
     k = 0
