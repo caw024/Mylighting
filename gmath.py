@@ -63,7 +63,7 @@ def calculate_specular(light, sreflect, view, normal):
     dot = dot_product(reflection,view)
     #print("dot")
     #print(dot)
-    return [light[1][i] * sreflect[i] * dot for i in range(0,3)]
+    return [light[1][i] * sreflect[i] * math.pow(dot,4) for i in range(0,3)]
 
 def limit_color(color):
     k = 0
